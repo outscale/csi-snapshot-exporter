@@ -1,0 +1,84 @@
+name: E2E tests
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "**.go"
+      - "Dockerfile"
+      - "Makefile"
+      - "go.*"
+      - ".github/workflows/test-e2e.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test-e2e:
+    name: Run E2E test suite
+    runs-on: [self-hosted, linux]
+    steps:
+      - name: ⬇️ Checkout repository
+        uses: actions/checkout@v5
+      - name: 🔐 Set ak/sk name based on runner region
+        run: .github/scripts/runneraksk.sh
+      - name: ⬇️ Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+      - name: ⬇️ Install kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: v1.32.9
+      - name: ⬇️ Install helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.16.2
+      - name: ⬇️ Install kind
+        run: |
+          curl -Lo ./kind https://kind.sigs.k8s.io/dl/${{ vars.KIND_VERSION }}/kind-linux-amd64
+          chmod +x ./kind
+          sudo mv ./kind /usr/local/bin/kind
+      - name: 🔎 Verify kind installation
+        run: kind version
+      - name: 🧹 Frieza
+        uses: outscale/frieza-github-actions/frieza-clean@master
+        with:
+          access_key: ${{ secrets[env.OSC_ACCESS_KEY_NAME] }}
+          secret_key: ${{ secrets[env.OSC_SECRET_KEY_NAME] }}
+          region: ${{ env.OSC_REGION }}
+      - name: 👷 Create bucket if necessary
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install awscli
+          BUCKET_NAME=`echo csi-export-${{ runner.name }}|tr '[:upper:]' '[:lower:]'|sed -r 's/-[a-z0-9]+$//'|cut -c1-32|sed -r 's/[^a-z0-9-]+/-/g'`
+          aws s3 ls s3://$BUCKET_NAME --endpoint https://oos.$OSC_REGION.outscale.com || aws s3 mb s3://$BUCKET_NAME --endpoint https://oos.$OSC_REGION.outscale.com
+          echo "EXPORT_BUCKET=$BUCKET_NAME" | tee -a $GITHUB_ENV
+        env:
+          AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
+          AWS_RESPONSE_CHECKSUM_VALIDATION: WHEN_REQUIRED
+          AWS_ACCESS_KEY_ID: ${{ secrets[env.OSC_ACCESS_KEY_NAME] }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets[env.OSC_SECRET_KEY_NAME] }}
+          AWS_DEFAULT_REGION: ${{ env.OSC_REGION }}
+      - name: 🧪 Run e2e tests
+        run: |
+          go mod tidy
+          make test-e2e
+        env:
+          OSC_ACCESS_KEY: ${{ secrets[env.OSC_ACCESS_KEY_NAME] }}
+          OSC_SECRET_KEY: ${{ secrets[env.OSC_SECRET_KEY_NAME] }}
+          KIND_IMAGE: ${{ vars.KIND_IMAGE }}
+      - name: 🧹 Destroy kind cluster
+        if: ${{ always() }}
+        run: |
+          make cleanup-test-e2e
+      - name: 🧹 Purge bucket
+        run: |
+          aws s3 rm --recursive s3://$EXPORT_BUCKET --endpoint https://oos.$OSC_REGION.outscale.com
+        env:
+          AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
+          AWS_RESPONSE_CHECKSUM_VALIDATION: WHEN_REQUIRED
+          AWS_ACCESS_KEY_ID: ${{ secrets[env.OSC_ACCESS_KEY_NAME] }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets[env.OSC_SECRET_KEY_NAME] }}
+          AWS_DEFAULT_REGION: ${{ env.OSC_REGION }}

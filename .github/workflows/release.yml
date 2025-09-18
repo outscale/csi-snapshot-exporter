@@ -1,0 +1,30 @@
+# Github action for releasing the binaries
+name: release
+
+on:
+  push:
+    tags:
+    - 'v*'
+  workflow_dispatch:  
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Get changelog for release
+        id: changelog
+        uses: mindsers/changelog-reader-action@v2
+        with:
+          path: "CHANGELOG.md"
+          version: ${{ github.ref_name }}
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          draft: true
+          prerelease: false
+          body: ${{ steps.changelog.outputs.changes }}
