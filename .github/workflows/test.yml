@@ -1,0 +1,30 @@
+name: Unit tests
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "**.go"
+      - "Makefile"
+      - "go.*"
+      - ".github/workflows/test.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Run Unit tests suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout repository
+        uses: actions/checkout@v5
+      - name: ⬇️ Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+      - name: 🧪 Run unit tests
+        run: |
+          go mod tidy
+          make test
