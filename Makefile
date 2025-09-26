@@ -95,8 +95,15 @@ cleanup-test-e2e: ## Tear down the Kind cluster used for e2e tests
 	@$(KIND) delete cluster --name $(KIND_CLUSTER)
 
 .PHONY: lint
-lint: golangci-lint ## Run golangci-lint linter
+lint: lint-go lint-reuse ## Run golangci-lint linter
+
+.PHONY: lint-go
+lint-go: golangci-lint ## Run golangci-lint linter
 	$(GOLANGCI_LINT) run
+
+.PHONY: lint-reuse
+lint-reuse:
+	docker run --rm --volume $(PWD):/data fsfe/reuse:5.1 lint
 
 .PHONY: lint-fix
 lint-fix: golangci-lint ## Run golangci-lint linter and perform fixes

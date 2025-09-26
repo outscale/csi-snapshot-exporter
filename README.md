@@ -1,3 +1,7 @@
+<!--
+SPDX-FileCopyrightText: 2025 Outscale SAS <opensource@outscale.com>
+SPDX-License-Identifier: BSD-3-Clause
+-->
 ## **CSI Snapshot Exporter**
 
 [![Project Stage](https://docs.outscale.com/fr/userguide/_images/Project-Sandbox-yellow.svg)](https://docs.outscale.com/en/userguide/Open-Source-Projects.html) [![](https://dcbadge.limes.pink/api/server/HUVtY5gT6s?style=flat&theme=default-inverted)](https://discord.gg/HUVtY5gT6s)
@@ -95,6 +99,7 @@ parameters:
 This project complies with the [REUSE Specification](https://reuse.software/).
 
 See [LICENSES/](./LICENSES) directory for full license information.
+
 ---
 
 ## 🤝 Contributing
