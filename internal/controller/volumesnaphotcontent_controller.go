@@ -1,9 +1,7 @@
 /*
-Copyright 2025 Outscale SAS
-All rights reserved.
+SPDX-FileCopyrightText: 2025 Outscale SAS <opensource@outscale.com>
 
-Use of this source code is governed by a BSD 3 clause license
-that can be found in the LICENSES/BSD-3-Clause.txt file.
+SPDX-License-Identifier: BSD-3-Clause
 */
 package controller
 

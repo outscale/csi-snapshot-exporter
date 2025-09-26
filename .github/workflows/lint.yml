@@ -8,18 +8,22 @@ permissions:
 
 jobs:
   lint:
-    name: Run on Ubuntu
+    name: Lint Go + Reuse
     runs-on: ubuntu-latest
     steps:
-      - name: Clone the code
+      - name: ⬇️ Checkout repository
         uses: actions/checkout@v5
 
-      - name: Setup Go
+      - name: ⬇️ Setup Go
         uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
 
-      - name: Run linter
+      - name: 🔎 Golang lint
         uses: golangci/golangci-lint-action@v8
         with:
           version: v2.5.0
+
+      - name: 🔎 Reuse lint
+        run: |
+          make lint-reuse
