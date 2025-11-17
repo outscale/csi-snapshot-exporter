@@ -3,9 +3,13 @@ name: Release
 on:
   release:
     types: [published]
+
+permissions:
+  contents: read
+
 jobs:
   push-docker-image:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Check the repo
         uses: actions/checkout@v5
