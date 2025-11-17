@@ -24,7 +24,7 @@ jobs:
       - name: 🔐 Set ak/sk name based on runner region
         run: .github/scripts/runneraksk.sh
       - name: ⬇️ Install Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version-file: 'go.mod'
       - name: ⬇️ Install kubectl
