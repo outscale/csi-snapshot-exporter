@@ -110,7 +110,7 @@ var _ = Describe("Snapshot exporter", Ordered, func() {
 
 		By("deploying the CSI driver")
 		cmd = exec.Command("helm", "upgrade", "--install", "osc-bsu-csi-driver", "oci://docker.io/outscalehelm/osc-bsu-csi-driver",
-			"--namespace", "kube-system", "--set", "enableVolumeSnapshot=true", "--set", "region="+os.Getenv("OSC_REGION"), "--set", "verbose=5")
+			"--namespace", "kube-system", "--set", "driver.enableVolumeSnapshot=true", "--set", "cloud.region="+os.Getenv("OSC_REGION"), "--set", "logs.verbosity=5")
 		_, err = utils.Run(cmd)
 		Expect(err).NotTo(HaveOccurred(), "Failed to deploy the CSI driver")
 
