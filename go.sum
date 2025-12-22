@@ -250,6 +250,8 @@ k8s.io/kube-openapi v0.0.0-20241105132330-32ad38e42d3f h1:GA7//TjRY9yWGy1poLzYYJ
 k8s.io/kube-openapi v0.0.0-20241105132330-32ad38e42d3f/go.mod h1:R/HEjbvWI0qdfb8viZUeVZm0X6IZnxAydC7YU42CMw4=
 k8s.io/kubernetes v1.32.9 h1:w4Zv/2dVwQKUqCZOSBnMzjMYZQ33TNuSZvbkJ9HEaGE=
 k8s.io/kubernetes v1.32.9/go.mod h1:REY0Gok66BTTrbGyZaFMNKO9JhxvgBDW9B7aksWRFoY=
+k8s.io/kubernetes v1.32.11 h1:vGU5kf3OD2/Pu/OAOyPld7gHlS1gmeRth54PWxcRVMM=
+k8s.io/kubernetes v1.32.11/go.mod h1:o2pRStsMR7Uq62zcugfUEQsxnuyFt9r8migMrbsVH00=
 k8s.io/pod-security-admission v0.32.9 h1:pTETf8DDsk4mFmNlmStYYMotl2X32Bsk8Skj4b0lAHk=
 k8s.io/pod-security-admission v0.32.9/go.mod h1:WlnYlSbfelQ4oR4Q8mA2VexVWwpoxLHL2Zym1EGHOlc=
 k8s.io/utils v0.0.0-20250604170112-4c0f3b243397 h1:hwvWFiBzdWw1FhfY1FooPn3kzWuJ8tmbZBHi4zVsl1Y=
