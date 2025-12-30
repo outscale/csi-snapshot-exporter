@@ -12,7 +12,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/outscale/osc-sdk-go/v2"
+	"github.com/outscale/goutils/sdk/ptr"
+	"github.com/outscale/osc-sdk-go/v3/pkg/osc"
 	"k8s.io/klog/v2"
 	ctrl "sigs.k8s.io/controller-runtime"
 )
@@ -21,17 +22,17 @@ func (r *VolumeSnaphotContentReconciler) export(ctx context.Context, scope *Scop
 	log := klog.FromContext(ctx)
 	var task *osc.SnapshotExportTask
 	if taskID := scope.ExportTaskID(); taskID != "" {
-		tasks, err := r.oapi.ReadSnapshotExportTasks(ctx, osc.ReadSnapshotExportTasksRequest{
+		res, err := r.oapi.ReadSnapshotExportTasks(ctx, osc.ReadSnapshotExportTasksRequest{
 			Filters: &osc.FiltersExportTask{TaskIds: &[]string{taskID}},
 		})
 		switch {
 		case err != nil:
 			return ctrl.Result{}, fmt.Errorf("unable to read task: %w", err)
-		case len(tasks) == 0:
+		case len(*res.SnapshotExportTasks) == 0:
 			return ctrl.Result{}, errors.New("no export task found")
 		}
-		task = &tasks[0]
-		if task.GetState() == StateFailed {
+		task = &(*res.SnapshotExportTasks)[0]
+		if task.State == osc.SnapshotExportTaskStateFailed {
 			log.V(3).Info("Retrying failed export")
 			task = nil
 		}
@@ -62,27 +63,28 @@ func (r *VolumeSnaphotContentReconciler) export(ctx context.Context, scope *Scop
 		if p := scope.ExportPrefix(); p != "" {
 			req.OsuExport.OsuPrefix = &p
 		}
-		task, err = r.oapi.CreateSnapshotExportTask(ctx, req)
+		res, err := r.oapi.CreateSnapshotExportTask(ctx, req)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("unable to create task: %w", err)
 		}
-		log.V(2).Info("New export task created", "task_id", task.GetTaskId())
+		task = res.SnapshotExportTask
+		log.V(2).Info("New export task created", "task_id", task.TaskId)
 	}
-	scope.UpdateExportState(task.GetTaskId(), task.GetState())
-	switch task.GetState() {
-	case StateCompleted:
-		path := task.OsuExport.GetOsuPrefix() + task.GetSnapshotId() +
-			strings.TrimPrefix(task.GetTaskId(), "snap-export") + "." + task.OsuExport.GetDiskImageFormat() + ".gz"
+	scope.UpdateExportState(task.TaskId, task.State)
+	switch task.State {
+	case osc.SnapshotExportTaskStateCompleted:
+		path := ptr.From(task.OsuExport.OsuPrefix) + task.SnapshotId +
+			strings.TrimPrefix(task.TaskId, "snap-export") + "." + task.OsuExport.DiskImageFormat + ".gz"
 		scope.SetExportPath(path)
-		log.V(2).Info("Export is finished", "task_id", task.GetTaskId(), "state", task.GetState(), "path", path)
+		log.V(2).Info("Export is finished", "task_id", task.TaskId, "state", task.State, "path", path)
 		return ctrl.Result{}, nil
-	case StateCancelled:
-		log.V(2).Info("Export was cancelled", "task_id", task.GetTaskId(), "state", task.GetState())
+	case osc.SnapshotExportTaskStateCancelled:
+		log.V(2).Info("Export was cancelled", "task_id", task.TaskId, "state", task.State)
 		return ctrl.Result{}, nil
-	case StateFailed:
-		log.V(3).Info("Export has failed, retrying", "task_id", task.GetTaskId(), "state", task.GetState())
+	case osc.SnapshotExportTaskStateFailed:
+		log.V(3).Info("Export has failed, retrying", "task_id", task.TaskId, "state", task.State)
 		return ctrl.Result{RequeueAfter: 2 * time.Minute}, nil
 	}
-	log.V(4).Info("Export is still running", "task_id", task.GetTaskId(), "state", task.GetState(), "progress", task.GetProgress())
+	log.V(4).Info("Export is still running", "task_id", task.TaskId, "state", task.State, "progress", task.Progress)
 	return ctrl.Result{RequeueAfter: 30 * time.Second}, nil
 }
