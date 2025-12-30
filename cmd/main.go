@@ -19,6 +19,7 @@ import (
 
 	snapshotv1 "github.com/kubernetes-csi/external-snapshotter/client/v8/apis/volumesnapshot/v1"
 	"github.com/outscale/csi-snapshot-exporter/internal/controller"
+	"github.com/outscale/goutils/k8s/sdk"
 	"github.com/spf13/pflag"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
@@ -52,6 +53,7 @@ func main() {
 	var secureMetrics bool
 	var enableHTTP2 bool
 	var tlsOpts []func(*tls.Config)
+	var sdkOptions sdk.Options
 	fs := pflag.CommandLine
 	fs.StringVar(&metricsAddr, "metrics-bind-address", "0", "The address the metrics endpoint binds to. "+
 		"Use :8443 for HTTPS or :8080 for HTTP, or leave as 0 to disable the metrics service.")
@@ -72,6 +74,7 @@ func main() {
 		"If set, HTTP/2 will be enabled for the metrics and webhook servers")
 	logOptions := logs.NewOptions()
 	logsv1.AddFlags(logOptions, fs)
+	sdkOptions.AddFlags(fs)
 	pflag.Parse()
 
 	if err := logsv1.ValidateAndApply(logOptions, nil); err != nil {
@@ -167,7 +170,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	oapi, err := controller.NewOAPIClient()
+	ctx := ctrl.SetupSignalHandler()
+	oapi, err := controller.NewOAPIClient(ctx, sdkOptions)
 	if err != nil {
 		logger.Error(err, "unable to configure OAPI client")
 		os.Exit(1)
@@ -197,7 +201,7 @@ func main() {
 	}
 
 	logger.Info("starting manager")
-	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
+	if err := mgr.Start(ctx); err != nil {
 		logger.Error(err, "problem running manager")
 		os.Exit(1)
 	}

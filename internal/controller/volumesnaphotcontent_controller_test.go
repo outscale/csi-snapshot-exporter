@@ -6,14 +6,14 @@ SPDX-License-Identifier: BSD-3-Clause
 package controller_test
 
 import (
-	"context"
 	"testing"
 	"time"
 
 	snapshotv1 "github.com/kubernetes-csi/external-snapshotter/client/v8/apis/volumesnapshot/v1"
 	"github.com/outscale/csi-snapshot-exporter/internal/controller"
-	"github.com/outscale/csi-snapshot-exporter/internal/controller/mocks"
-	"github.com/outscale/osc-sdk-go/v2"
+	"github.com/outscale/goutils/sdk/mocks_osc"
+	"github.com/outscale/goutils/sdk/ptr"
+	"github.com/outscale/osc-sdk-go/v3/pkg/osc"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
@@ -22,18 +22,17 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
-	"k8s.io/utils/ptr"
 	controllerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 )
 
-func initTest(mockCtl *gomock.Controller, vsc *snapshotv1.VolumeSnapshotContent, class *snapshotv1.VolumeSnapshotClass) (*controller.VolumeSnaphotContentReconciler, *mocks.MockOAPIClient) {
+func initTest(mockCtl *gomock.Controller, vsc *snapshotv1.VolumeSnapshotContent, class *snapshotv1.VolumeSnapshotClass) (*controller.VolumeSnaphotContentReconciler, *mocks_osc.MockClient) {
 	fakeScheme := runtime.NewScheme()
 	_ = clientgoscheme.AddToScheme(fakeScheme)
 	_ = snapshotv1.AddToScheme(fakeScheme)
 	client := fake.NewClientBuilder().WithScheme(fakeScheme).
 		WithStatusSubresource(vsc).WithObjects(vsc, class).Build()
-	oapi := mocks.NewMockOAPIClient(mockCtl)
+	oapi := mocks_osc.NewMockClient(mockCtl)
 	return controller.NewVolumeSnaphotContentReconciler(client, fakeScheme, oapi), oapi
 }
 
@@ -82,7 +81,7 @@ func TestReconcile(t *testing.T) {
 		mockCtl := gomock.NewController(t)
 		defer mockCtl.Finish()
 		r, _ := initTest(mockCtl, vsc, class)
-		res, err := r.Reconcile(context.TODO(), req)
+		res, err := r.Reconcile(t.Context(), req)
 		require.NoError(t, err)
 		assert.Zero(t, res.RequeueAfter)
 	})
@@ -92,7 +91,7 @@ func TestReconcile(t *testing.T) {
 		mockCtl := gomock.NewController(t)
 		defer mockCtl.Finish()
 		r, _ := initTest(mockCtl, vsc, class)
-		res, err := r.Reconcile(context.TODO(), req)
+		res, err := r.Reconcile(t.Context(), req)
 		require.NoError(t, err)
 		assert.NotZero(t, res.RequeueAfter)
 	})
@@ -108,10 +107,10 @@ func TestReconcile(t *testing.T) {
 				OsuPrefix:       ptr.To("/vs/ns/" + time.Now().Format(time.DateOnly)),
 			},
 		})).
-			Return(&osc.SnapshotExportTask{
-				State: ptr.To(controller.StatePending),
-			}, nil)
-		res, err := r.Reconcile(context.TODO(), req)
+			Return(&osc.CreateSnapshotExportTaskResponse{SnapshotExportTask: &osc.SnapshotExportTask{
+				State: osc.SnapshotExportTaskStatePending,
+			}}, nil)
+		res, err := r.Reconcile(t.Context(), req)
 		require.NoError(t, err)
 		assert.NotZero(t, res.RequeueAfter)
 	})
@@ -119,7 +118,7 @@ func TestReconcile(t *testing.T) {
 		vsc := vsc.DeepCopy()
 		vsc.Annotations = map[string]string{
 			controller.AnnotationExportTask:  "snap-export-foo",
-			controller.AnnotationExportState: controller.StatePending,
+			controller.AnnotationExportState: string(osc.SnapshotExportTaskStatePending),
 		}
 		mockCtl := gomock.NewController(t)
 		defer mockCtl.Finish()
@@ -129,10 +128,10 @@ func TestReconcile(t *testing.T) {
 				TaskIds: &[]string{"snap-export-foo"},
 			},
 		})).
-			Return([]osc.SnapshotExportTask{{
-				State: ptr.To(string(controller.StateActive)),
-			}}, nil)
-		res, err := r.Reconcile(context.TODO(), req)
+			Return(&osc.ReadSnapshotExportTasksResponse{SnapshotExportTasks: &[]osc.SnapshotExportTask{{
+				State: osc.SnapshotExportTaskStateActive,
+			}}}, nil)
+		res, err := r.Reconcile(t.Context(), req)
 		require.NoError(t, err)
 		assert.NotZero(t, res.RequeueAfter)
 	})
@@ -140,7 +139,7 @@ func TestReconcile(t *testing.T) {
 		vsc := vsc.DeepCopy()
 		vsc.Annotations = map[string]string{
 			controller.AnnotationExportTask:  "snap-export-foo",
-			controller.AnnotationExportState: controller.StatePending,
+			controller.AnnotationExportState: string(osc.SnapshotExportTaskStatePending),
 		}
 		mockCtl := gomock.NewController(t)
 		defer mockCtl.Finish()
@@ -150,10 +149,11 @@ func TestReconcile(t *testing.T) {
 				TaskIds: &[]string{"snap-export-foo"},
 			},
 		})).
-			Return([]osc.SnapshotExportTask{{
-				State: ptr.To(string(controller.StateCompleted)),
-			}}, nil)
-		res, err := r.Reconcile(context.TODO(), req)
+			Return(&osc.ReadSnapshotExportTasksResponse{SnapshotExportTasks: &[]osc.SnapshotExportTask{{
+				OsuExport: &osc.OsuExportSnapshotExportTask{},
+				State:     osc.SnapshotExportTaskStateCompleted,
+			}}}, nil)
+		res, err := r.Reconcile(t.Context(), req)
 		require.NoError(t, err)
 		assert.Zero(t, res.RequeueAfter)
 	})
@@ -161,7 +161,7 @@ func TestReconcile(t *testing.T) {
 		vsc := vsc.DeepCopy()
 		vsc.Annotations = map[string]string{
 			controller.AnnotationExportTask:  "snap-export-foo",
-			controller.AnnotationExportState: controller.StateActive,
+			controller.AnnotationExportState: string(osc.SnapshotExportTaskStateActive),
 		}
 		mockCtl := gomock.NewController(t)
 		defer mockCtl.Finish()
@@ -171,9 +171,10 @@ func TestReconcile(t *testing.T) {
 				TaskIds: &[]string{"snap-export-foo"},
 			},
 		})).
-			Return([]osc.SnapshotExportTask{{
-				State: ptr.To(string(controller.StateFailed)),
-			}}, nil)
+			Return(&osc.ReadSnapshotExportTasksResponse{SnapshotExportTasks: &[]osc.SnapshotExportTask{{
+				OsuExport: &osc.OsuExportSnapshotExportTask{},
+				State:     osc.SnapshotExportTaskStateFailed,
+			}}}, nil)
 		mockOAPI.EXPECT().CreateSnapshotExportTask(gomock.Any(), gomock.Eq(osc.CreateSnapshotExportTaskRequest{
 			SnapshotId: "snap-foo",
 			OsuExport: osc.OsuExportToCreate{
@@ -182,10 +183,11 @@ func TestReconcile(t *testing.T) {
 				OsuPrefix:       ptr.To("/vs/ns/" + time.Now().Format(time.DateOnly)),
 			},
 		})).
-			Return(&osc.SnapshotExportTask{
-				State: ptr.To(controller.StatePending),
-			}, nil)
-		res, err := r.Reconcile(context.TODO(), req)
+			Return(&osc.CreateSnapshotExportTaskResponse{SnapshotExportTask: &osc.SnapshotExportTask{
+				OsuExport: &osc.OsuExportSnapshotExportTask{},
+				State:     osc.SnapshotExportTaskStatePending,
+			}}, nil)
+		res, err := r.Reconcile(t.Context(), req)
 		require.NoError(t, err)
 		assert.NotZero(t, res.RequeueAfter)
 	})

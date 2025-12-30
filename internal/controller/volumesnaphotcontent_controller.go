@@ -10,6 +10,7 @@ import (
 	"fmt"
 
 	volumesnapshotv1 "github.com/kubernetes-csi/external-snapshotter/client/v8/apis/volumesnapshot/v1"
+	"github.com/outscale/osc-sdk-go/v3/pkg/osc"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/klog/v2"
@@ -20,11 +21,11 @@ import (
 // VolumeSnaphotContentReconciler reconciles a VolumeSnaphotContent object
 type VolumeSnaphotContentReconciler struct {
 	k8s    client.Client
-	oapi   OAPIClient
+	oapi   osc.ClientInterface
 	Scheme *runtime.Scheme
 }
 
-func NewVolumeSnaphotContentReconciler(k8s client.Client, scheme *runtime.Scheme, oapi OAPIClient) *VolumeSnaphotContentReconciler {
+func NewVolumeSnaphotContentReconciler(k8s client.Client, scheme *runtime.Scheme, oapi osc.ClientInterface) *VolumeSnaphotContentReconciler {
 	return &VolumeSnaphotContentReconciler{
 		k8s:    k8s,
 		oapi:   oapi,

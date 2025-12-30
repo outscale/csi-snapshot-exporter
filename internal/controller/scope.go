@@ -13,6 +13,7 @@ import (
 	"time"
 
 	volumesnapshotv1 "github.com/kubernetes-csi/external-snapshotter/client/v8/apis/volumesnapshot/v1"
+	"github.com/outscale/osc-sdk-go/v3/pkg/osc"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -27,12 +28,6 @@ const (
 	AnnotationExportPath  = "bsu.csi.outscale.com/export-path"
 	AnnotationExportState = "bsu.csi.outscale.com/export-state"
 	AnnotationExportTask  = "bsu.csi.outscale.com/export-task"
-
-	StatePending   = "pending"
-	StateActive    = "active"
-	StateCompleted = "completed"
-	StateCancelled = "cancelled"
-	StateFailed    = "failed"
 )
 
 type Scope struct {
@@ -54,7 +49,7 @@ func NewScope(c client.Client, snap *volumesnapshotv1.VolumeSnapshotContent, sna
 }
 
 func (s *Scope) NeedsExport() bool {
-	return s.snapClass.Parameters[ParamExportEnabled] == "true" && s.snap.Annotations[AnnotationExportState] != StateCompleted
+	return s.snapClass.Parameters[ParamExportEnabled] == "true" && s.snap.Annotations[AnnotationExportState] != string(osc.SnapshotExportTaskStateCompleted)
 }
 
 func (s *Scope) GetSnapshotID() (string, bool) {
@@ -96,12 +91,12 @@ func (s *Scope) ExportFormat() (string, error) {
 	}
 }
 
-func (s *Scope) UpdateExportState(id, state string) {
+func (s *Scope) UpdateExportState(id string, state osc.SnapshotExportTaskState) {
 	if s.snap.Annotations == nil {
 		s.snap.Annotations = map[string]string{}
 	}
 	s.snap.Annotations[AnnotationExportTask] = id
-	s.snap.Annotations[AnnotationExportState] = state
+	s.snap.Annotations[AnnotationExportState] = string(state)
 }
 
 func (s *Scope) SetExportPath(path string) {
