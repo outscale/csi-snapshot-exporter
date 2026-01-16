@@ -8,7 +8,7 @@ require (
 	github.com/onsi/gomega v1.38.3
 	github.com/outscale/goutils/k8s v0.0.0-20251229123603-26cb69c33007
 	github.com/outscale/goutils/sdk v0.0.0-20251229123603-26cb69c33007
-	github.com/outscale/osc-sdk-go/v3 v3.0.0-beta.2
+	github.com/outscale/osc-sdk-go/v3 v3.0.0-beta.3
 	github.com/spf13/pflag v1.0.10
 	github.com/stretchr/testify v1.11.1
 	go.uber.org/mock v0.6.0
