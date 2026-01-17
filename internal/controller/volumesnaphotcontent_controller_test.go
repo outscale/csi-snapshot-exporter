@@ -150,7 +150,7 @@ func TestReconcile(t *testing.T) {
 			},
 		})).
 			Return(&osc.ReadSnapshotExportTasksResponse{SnapshotExportTasks: &[]osc.SnapshotExportTask{{
-				OsuExport: &osc.OsuExportSnapshotExportTask{},
+				OsuExport: osc.OsuExportSnapshotExportTask{},
 				State:     osc.SnapshotExportTaskStateCompleted,
 			}}}, nil)
 		res, err := r.Reconcile(t.Context(), req)
@@ -172,7 +172,7 @@ func TestReconcile(t *testing.T) {
 			},
 		})).
 			Return(&osc.ReadSnapshotExportTasksResponse{SnapshotExportTasks: &[]osc.SnapshotExportTask{{
-				OsuExport: &osc.OsuExportSnapshotExportTask{},
+				OsuExport: osc.OsuExportSnapshotExportTask{},
 				State:     osc.SnapshotExportTaskStateFailed,
 			}}}, nil)
 		mockOAPI.EXPECT().CreateSnapshotExportTask(gomock.Any(), gomock.Eq(osc.CreateSnapshotExportTaskRequest{
@@ -184,7 +184,7 @@ func TestReconcile(t *testing.T) {
 			},
 		})).
 			Return(&osc.CreateSnapshotExportTaskResponse{SnapshotExportTask: &osc.SnapshotExportTask{
-				OsuExport: &osc.OsuExportSnapshotExportTask{},
+				OsuExport: osc.OsuExportSnapshotExportTask{},
 				State:     osc.SnapshotExportTaskStatePending,
 			}}, nil)
 		res, err := r.Reconcile(t.Context(), req)
