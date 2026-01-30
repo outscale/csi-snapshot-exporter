@@ -7,7 +7,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.27.5
 	github.com/onsi/gomega v1.38.3
 	github.com/outscale/goutils/k8s v0.0.0-20260114123807-be82506970c1
-	github.com/outscale/goutils/sdk v0.0.0-20260113165558-ff2de7ab6a67
+	github.com/outscale/goutils/sdk v0.0.0-20260127143749-d95db5597c97
 	github.com/outscale/osc-sdk-go/v3 v3.0.0-beta.3
 	github.com/spf13/pflag v1.0.10
 	github.com/stretchr/testify v1.11.1
