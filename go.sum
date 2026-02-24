@@ -151,6 +151,8 @@ github.com/outscale/goutils/k8s v0.0.0-20251229123603-26cb69c33007 h1:O8ZIq6X3f/
 github.com/outscale/goutils/k8s v0.0.0-20251229123603-26cb69c33007/go.mod h1:Y6YjTivYwzERmte5pi8okNYZyo8NYnJpR+jxkviKy+w=
 github.com/outscale/goutils/k8s v0.0.0-20260114123807-be82506970c1 h1:wTIyfYEnP4Pm8iz2aTsxxGEpgE6naMj8xF4SMBr9/VU=
 github.com/outscale/goutils/k8s v0.0.0-20260114123807-be82506970c1/go.mod h1:783bw0VGgyBMsyM/ZdhW4ffMeE+JmujG8W0qXxJ1N0Y=
+github.com/outscale/goutils/k8s v0.0.0-20260127143749-d95db5597c97 h1:vLpU0YWSKyTqaj3iLhXnY8sUGJPOJKcxp+XYp6ogMe4=
+github.com/outscale/goutils/k8s v0.0.0-20260127143749-d95db5597c97/go.mod h1:783bw0VGgyBMsyM/ZdhW4ffMeE+JmujG8W0qXxJ1N0Y=
 github.com/outscale/goutils/sdk v0.0.0-20251229123603-26cb69c33007 h1:uE09IfAJ9YIp3KcZ79/1SrcrDiYPQvZ9TSQb2He2lh0=
 github.com/outscale/goutils/sdk v0.0.0-20251229123603-26cb69c33007/go.mod h1:9VnX1O5YD3mNppwkt/vk8jim36bCHQHR8tAtucAnZjw=
 github.com/outscale/goutils/sdk v0.0.0-20260113165558-ff2de7ab6a67 h1:bpkVNbhCWAyrl/e0cOD7zn7bUjgP1F/qz9lvDVjijzg=
