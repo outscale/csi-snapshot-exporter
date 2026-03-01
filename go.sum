@@ -155,6 +155,8 @@ github.com/outscale/goutils/sdk v0.0.0-20251229123603-26cb69c33007 h1:uE09IfAJ9Y
 github.com/outscale/goutils/sdk v0.0.0-20251229123603-26cb69c33007/go.mod h1:9VnX1O5YD3mNppwkt/vk8jim36bCHQHR8tAtucAnZjw=
 github.com/outscale/goutils/sdk v0.0.0-20260113165558-ff2de7ab6a67 h1:bpkVNbhCWAyrl/e0cOD7zn7bUjgP1F/qz9lvDVjijzg=
 github.com/outscale/goutils/sdk v0.0.0-20260113165558-ff2de7ab6a67/go.mod h1:dVTeuVYvXjyRSKJk0AtY8flbPpEVeR3WMFU1x3VwrCk=
+github.com/outscale/goutils/sdk v0.0.0-20260127143749-d95db5597c97 h1:1sgUIBGpxKqklrUtdjcvatnBd5mEbcZ3CFi+5FvfpsQ=
+github.com/outscale/goutils/sdk v0.0.0-20260127143749-d95db5597c97/go.mod h1:/svrKoWyNM1dr1yH2GQeefqUM/0YUhcsBwrCzg8nYoo=
 github.com/outscale/osc-sdk-go/v3 v3.0.0-beta.2 h1:3UauJs026vpjnFXKQvn1uVrUIstF9GL8E7XDTgA+Sn0=
 github.com/outscale/osc-sdk-go/v3 v3.0.0-beta.2/go.mod h1:+UWiUEbhmj8HUyhoGjmve0WKDezaEirKskWoYk5euTc=
 github.com/outscale/osc-sdk-go/v3 v3.0.0-beta.3 h1:Pvt/buq59di5j6acnUAFWBG0LUFa6kBn6GYrx9bt+0Y=
