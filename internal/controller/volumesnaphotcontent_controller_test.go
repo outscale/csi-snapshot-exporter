@@ -124,7 +124,7 @@ func TestReconcile(t *testing.T) {
 		defer mockCtl.Finish()
 		r, mockOAPI := initTest(mockCtl, vsc, class)
 		mockOAPI.EXPECT().ReadSnapshotExportTasks(gomock.Any(), gomock.Eq(osc.ReadSnapshotExportTasksRequest{
-			Filters: &osc.FiltersExportTask{
+			Filters: &osc.FiltersSnapshotExportTask{
 				TaskIds: &[]string{"snap-export-foo"},
 			},
 		})).
@@ -145,7 +145,7 @@ func TestReconcile(t *testing.T) {
 		defer mockCtl.Finish()
 		r, mockOAPI := initTest(mockCtl, vsc, class)
 		mockOAPI.EXPECT().ReadSnapshotExportTasks(gomock.Any(), gomock.Eq(osc.ReadSnapshotExportTasksRequest{
-			Filters: &osc.FiltersExportTask{
+			Filters: &osc.FiltersSnapshotExportTask{
 				TaskIds: &[]string{"snap-export-foo"},
 			},
 		})).
@@ -167,7 +167,7 @@ func TestReconcile(t *testing.T) {
 		defer mockCtl.Finish()
 		r, mockOAPI := initTest(mockCtl, vsc, class)
 		mockOAPI.EXPECT().ReadSnapshotExportTasks(gomock.Any(), gomock.Eq(osc.ReadSnapshotExportTasksRequest{
-			Filters: &osc.FiltersExportTask{
+			Filters: &osc.FiltersSnapshotExportTask{
 				TaskIds: &[]string{"snap-export-foo"},
 			},
 		})).
