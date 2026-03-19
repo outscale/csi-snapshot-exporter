@@ -23,7 +23,7 @@ func (r *VolumeSnaphotContentReconciler) export(ctx context.Context, scope *Scop
 	var task *osc.SnapshotExportTask
 	if taskID := scope.ExportTaskID(); taskID != "" {
 		res, err := r.oapi.ReadSnapshotExportTasks(ctx, osc.ReadSnapshotExportTasksRequest{
-			Filters: &osc.FiltersExportTask{TaskIds: &[]string{taskID}},
+			Filters: &osc.FiltersSnapshotExportTask{TaskIds: &[]string{taskID}},
 		})
 		switch {
 		case err != nil:
