@@ -48,6 +48,7 @@ jobs:
           access_key: ${{ secrets[env.OSC_ACCESS_KEY_NAME] }}
           secret_key: ${{ secrets[env.OSC_SECRET_KEY_NAME] }}
           region: ${{ env.OSC_REGION }}
+          exclude_resource_types: access_key
       - name: 👷 Create bucket if necessary
         run: |
           python3 -m pip install --upgrade pip
