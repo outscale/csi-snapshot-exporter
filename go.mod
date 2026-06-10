@@ -17,7 +17,7 @@ require (
 	k8s.io/client-go v0.34.7
 	k8s.io/component-base v0.34.7
 	k8s.io/klog/v2 v2.140.0
-	k8s.io/kubernetes v1.34.7
+	k8s.io/kubernetes v1.34.8
 	k8s.io/pod-security-admission v0.34.7
 	sigs.k8s.io/controller-runtime v0.22.5
 )
