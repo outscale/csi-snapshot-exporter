@@ -43,7 +43,7 @@ jobs:
       - name: 🔎 Verify kind installation
         run: kind version
       - name: 🧹 Frieza
-        uses: outscale/frieza-github-actions/frieza-clean@master
+        uses: outscale/frieza-github-actions/frieza-clean@68ffd39d7e181f3548369e332242b329b04a3182 # master
         with:
           access_key: ${{ secrets[env.OSC_ACCESS_KEY_NAME] }}
           secret_key: ${{ secrets[env.OSC_SECRET_KEY_NAME] }}
