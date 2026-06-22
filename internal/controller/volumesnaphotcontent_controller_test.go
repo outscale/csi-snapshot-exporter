@@ -12,7 +12,6 @@ import (
 	snapshotv1 "github.com/kubernetes-csi/external-snapshotter/client/v8/apis/volumesnapshot/v1"
 	"github.com/outscale/csi-snapshot-exporter/internal/controller"
 	"github.com/outscale/goutils/sdk/mocks_osc"
-	"github.com/outscale/goutils/sdk/ptr"
 	"github.com/outscale/osc-sdk-go/v3/pkg/osc"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -67,7 +66,7 @@ func TestReconcile(t *testing.T) {
 			VolumeSnapshotClassName: &class.Name,
 		},
 		Status: &snapshotv1.VolumeSnapshotContentStatus{
-			SnapshotHandle: ptr.To("snap-foo"),
+			SnapshotHandle: new("snap-foo"),
 		},
 	}
 	req := controllerruntime.Request{
@@ -104,7 +103,7 @@ func TestReconcile(t *testing.T) {
 			OsuExport: osc.OsuExportToCreate{
 				DiskImageFormat: "qcow2",
 				OsuBucket:       "bucket",
-				OsuPrefix:       ptr.To("/vs/ns/" + time.Now().Format(time.DateOnly)),
+				OsuPrefix:       new("/vs/ns/" + time.Now().Format(time.DateOnly)),
 			},
 		})).
 			Return(&osc.CreateSnapshotExportTaskResponse{SnapshotExportTask: &osc.SnapshotExportTask{
@@ -180,7 +179,7 @@ func TestReconcile(t *testing.T) {
 			OsuExport: osc.OsuExportToCreate{
 				DiskImageFormat: "qcow2",
 				OsuBucket:       "bucket",
-				OsuPrefix:       ptr.To("/vs/ns/" + time.Now().Format(time.DateOnly)),
+				OsuPrefix:       new("/vs/ns/" + time.Now().Format(time.DateOnly)),
 			},
 		})).
 			Return(&osc.CreateSnapshotExportTaskResponse{SnapshotExportTask: &osc.SnapshotExportTask{
