@@ -20,9 +20,7 @@ jobs:
           go-version-file: go.mod
 
       - name: 🔎 Golang lint
-        uses: golangci/golangci-lint-action@1e7e51e771db61008b38414a730f564565cf7c20 # v9
-        with:
-          version: v2.5.0
+        uses: outscale/goutils/.github/actions/lint@8a4f7b08b35c0c071190ecca48362a3c3cd5a190 # main
 
       - name: 🔎 Reuse lint
         run: |

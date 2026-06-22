@@ -182,8 +182,8 @@ func LoadImageToKindClusterWithName(name string) error {
 // according to line breakers, and ignores the empty elements in it.
 func GetNonEmptyLines(output string) []string {
 	var res []string
-	elements := strings.Split(output, "\n")
-	for _, element := range elements {
+	elements := strings.SplitSeq(output, "\n")
+	for element := range elements {
 		if element != "" {
 			res = append(res, element)
 		}
@@ -322,7 +322,7 @@ func CreatePVC(ctx context.Context, cs kubernetes.Interface, namespace string) *
 					corev1.ResourceStorage: *resource.NewQuantity(claimSize, resource.DecimalSI),
 				},
 			},
-			StorageClassName: ptr.To(storageClass),
+			StorageClassName: new(storageClass),
 		},
 	}
 	pvc, err := cs.CoreV1().PersistentVolumeClaims(namespace).Create(ctx, pvc, metav1.CreateOptions{})

@@ -1,6 +1,8 @@
 module github.com/outscale/csi-snapshot-exporter
 
-go 1.25.3
+go 1.26.0
+
+toolchain go1.26.4
 
 require (
 	github.com/kubernetes-csi/external-snapshotter/client/v8 v8.4.0
