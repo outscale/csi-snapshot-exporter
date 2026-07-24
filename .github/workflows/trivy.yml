@@ -23,18 +23,19 @@ jobs:
     steps:
       - name: ⬇️ Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
 
-      - name: 📦 Build Docker Image
-        run: |
-          make docker-build
-        env:
-          IMG: csi-snapshot-exporter:${{ github.sha }}
-          DOCKER_BUILDKIT: 1
+      - name: 📦 Run GoReleaser
+        uses: goreleaser/goreleaser-action@f06c13b6b1a9625abc9e6e439d9c05a8f2190e94 # v7.2.3
+        with:
+          version: 'v2.15.4'
+          args: release --clean --snapshot
 
       - name: 🔎 Trivy-Scan
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
-          image-ref: csi-snapshot-exporter:${{ github.sha }}
+          image-ref: outscale/csi-snapshot-exporter:${{ github.sha }}-amd64
           format: 'sarif'
           output: 'trivy-results.sarif'
           severity: 'CRITICAL,HIGH'
