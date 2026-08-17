@@ -12,7 +12,7 @@ require (
 	github.com/outscale/goutils/sdk v0.0.4
 	github.com/outscale/osc-sdk-go/v3 v3.0.0-rc.2
 	github.com/spf13/pflag v1.0.10
-	github.com/stretchr/testify v1.11.1
+	github.com/stretchr/testify v1.12.0
 	go.uber.org/mock v0.6.0
 	k8s.io/api v0.34.7
 	k8s.io/apimachinery v0.34.7
