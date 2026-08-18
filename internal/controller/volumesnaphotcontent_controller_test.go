@@ -128,7 +128,7 @@ func TestReconcile(t *testing.T) {
 			},
 		})).
 			Return(&osc.ReadSnapshotExportTasksResponse{SnapshotExportTasks: &[]osc.SnapshotExportTask{{
-				State: osc.SnapshotExportTaskStateActive,
+				State: osc.SnapshotExportTaskStateUploading,
 			}}}, nil)
 		res, err := r.Reconcile(t.Context(), req)
 		require.NoError(t, err)
@@ -160,7 +160,7 @@ func TestReconcile(t *testing.T) {
 		vsc := vsc.DeepCopy()
 		vsc.Annotations = map[string]string{
 			controller.AnnotationExportTask:  "snap-export-foo",
-			controller.AnnotationExportState: string(osc.SnapshotExportTaskStateActive),
+			controller.AnnotationExportState: string(osc.SnapshotExportTaskStateInitializing),
 		}
 		mockCtl := gomock.NewController(t)
 		defer mockCtl.Finish()
