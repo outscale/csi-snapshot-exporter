@@ -36,7 +36,7 @@ jobs:
       - name: ⬇️ Install helm
         uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
         with:
-          version: v4.2.4
+          version: v4.3.0
       - name: ⬇️ Install octl
         uses: outscale/octl/.github/actions/setup_octl@1611a6d99b4017e59a3a5d755fdbf0147ac070e8 # v0.0.31
         with:
