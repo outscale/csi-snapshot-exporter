@@ -1,4 +1,4 @@
-FROM gcr.io/distroless/static:nonroot@sha256:1c2c046bc09ed40fad370b599a0b1ae7987f55b01e247cf27a7c27cd97e5bbc7
+FROM gcr.io/distroless/static:nonroot@sha256:516757106de35205efb70b91ba03f6f1298424a0678c603255cf2852a7000087
 ARG TARGETPLATFORM
 WORKDIR /
 COPY $TARGETPLATFORM/manager .
