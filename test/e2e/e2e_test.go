@@ -14,6 +14,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -60,9 +61,7 @@ func init() {
 
 //nolint:lll
 var _ = Describe("Snapshot exporter", Ordered, func() {
-	var (
-		controllerPodName string
-	)
+	var controllerPodName string
 
 	// Before running the tests, set up the environment by creating the namespace,
 	// enforce the restricted security policy to the namespace, installing CRDs,
@@ -81,32 +80,34 @@ var _ = Describe("Snapshot exporter", Ordered, func() {
 
 		By("deploy snapshotter CRDs")
 		cmd = exec.Command("kubectl", "apply", "-f",
-			"https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/release-8.3/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml")
+			"https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/release-8.6/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml")
 		_, err = utils.Run(cmd)
 		Expect(err).NotTo(HaveOccurred(), "Failed to label namespace with restricted policy")
 		cmd = exec.Command("kubectl", "apply", "-f",
-			"https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/release-8.3/client/config/crd/snapshot.storage.k8s.io_volumesnapshotcontents.yaml")
+			"https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/release-8.6/client/config/crd/snapshot.storage.k8s.io_volumesnapshotcontents.yaml")
 		_, err = utils.Run(cmd)
 		Expect(err).NotTo(HaveOccurred(), "Failed to label namespace with restricted policy")
 		cmd = exec.Command("kubectl", "apply", "-f",
-			"https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/release-8.3/client/config/crd/snapshot.storage.k8s.io_volumesnapshots.yaml")
+			"https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/release-8.6/client/config/crd/snapshot.storage.k8s.io_volumesnapshots.yaml")
 		_, err = utils.Run(cmd)
 		Expect(err).NotTo(HaveOccurred(), "Failed to label namespace with restricted policy")
 		cmd = exec.Command("kubectl", "apply", "-f",
-			"https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/release-8.3/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml")
+			"https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/release-8.6/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml")
 		_, err = utils.Run(cmd)
 		Expect(err).NotTo(HaveOccurred(), "Failed to label namespace with restricted policy")
 		cmd = exec.Command("kubectl", "apply", "-f",
-			"https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/release-8.3/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml")
+			"https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/release-8.6/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml")
 		_, err = utils.Run(cmd)
 		Expect(err).NotTo(HaveOccurred(), "Failed to label namespace with restricted policy")
 
 		By("deploying the CSI secret")
-		cmd = exec.Command("kubectl", "create", "secret", "generic", "osc-csi-bsu",
-			"--from-literal=access_key="+os.Getenv("OSC_ACCESS_KEY"), "--from-literal=secret_key="+os.Getenv("OSC_SECRET_KEY"),
-			"-n", "kube-system")
+		cmd = exec.Command("octl", "kube", "secret", "--name", "osc-csi-bsu")
+		output, err := utils.Run(cmd)
+		Expect(err).NotTo(HaveOccurred(), "Failed to generate the CSI secret")
+		cmd = exec.Command("kubectl", "apply", "-f", "-")
+		cmd.Stdin = strings.NewReader(output)
 		_, err = utils.Run(cmd)
-		Expect(err).NotTo(HaveOccurred(), "Failed to deploy the CSI secret")
+		Expect(err).NotTo(HaveOccurred(), "Failed to apply the CSI secret")
 
 		By("deploying the CSI driver")
 		cmd = exec.Command("helm", "upgrade", "--install", "osc-bsu-csi-driver", "oci://docker.io/outscalehelm/osc-bsu-csi-driver",
@@ -115,11 +116,13 @@ var _ = Describe("Snapshot exporter", Ordered, func() {
 		Expect(err).NotTo(HaveOccurred(), "Failed to deploy the CSI driver")
 
 		By("deploying the exporter secret")
-		cmd = exec.Command("kubectl", "create", "secret", "generic", "osc-csi-bsu",
-			"--from-literal=access_key="+os.Getenv("OSC_ACCESS_KEY"), "--from-literal=secret_key="+os.Getenv("OSC_SECRET_KEY"), "--from-literal=region="+os.Getenv("OSC_REGION"),
-			"-n", namespace)
+		cmd = exec.Command("octl", "kube", "secret", "--name", "osc-csi-bsu", "--namespace", namespace)
+		output, err = utils.Run(cmd)
+		Expect(err).NotTo(HaveOccurred(), "Failed to generate the exporter secret")
+		cmd = exec.Command("kubectl", "apply", "-f", "-")
+		cmd.Stdin = strings.NewReader(output)
 		_, err = utils.Run(cmd)
-		Expect(err).NotTo(HaveOccurred(), "Failed to deploy the exporter secret")
+		Expect(err).NotTo(HaveOccurred(), "Failed to apply the exporter secret")
 
 		By("deploying osc-snapshot-exporter")
 		cmd = exec.Command("make", "deploy", fmt.Sprintf("IMG=%s", projectImage))

@@ -7,8 +7,6 @@ SPDX-License-Identifier: Apache-2.0
 package utils
 
 import (
-	"bufio"
-	"bytes"
 	"context"
 	"fmt"
 	"os"
@@ -33,7 +31,7 @@ const (
 	prometheusOperatorURL     = "https://github.com/prometheus-operator/prometheus-operator/" +
 		"releases/download/%s/bundle.yaml"
 
-	certmanagerVersion = "v1.16.3"
+	certmanagerVersion = "v1.18.6"
 	certmanagerURLTmpl = "https://github.com/cert-manager/cert-manager/releases/download/%s/cert-manager.yaml"
 )
 
@@ -200,54 +198,6 @@ func GetProjectDir() (string, error) {
 	}
 	wd = strings.ReplaceAll(wd, "/test/e2e", "")
 	return wd, nil
-}
-
-// UncommentCode searches for target in the file and remove the comment prefix
-// of the target content. The target content may span multiple lines.
-func UncommentCode(filename, target, prefix string) error {
-	content, err := os.ReadFile(filename)
-	if err != nil {
-		return fmt.Errorf("failed to read file %q: %w", filename, err)
-	}
-	strContent := string(content)
-
-	idx := strings.Index(strContent, target)
-	if idx < 0 {
-		return fmt.Errorf("unable to find the code %q to be uncomment", target)
-	}
-
-	out := new(bytes.Buffer)
-	_, err = out.Write(content[:idx])
-	if err != nil {
-		return fmt.Errorf("failed to write to output: %w", err)
-	}
-
-	scanner := bufio.NewScanner(bytes.NewBufferString(target))
-	if !scanner.Scan() {
-		return nil
-	}
-	for {
-		if _, err = out.WriteString(strings.TrimPrefix(scanner.Text(), prefix)); err != nil {
-			return fmt.Errorf("failed to write to output: %w", err)
-		}
-		// Avoid writing a newline in case the previous line was the last in target.
-		if !scanner.Scan() {
-			break
-		}
-		if _, err = out.WriteString("\n"); err != nil {
-			return fmt.Errorf("failed to write to output: %w", err)
-		}
-	}
-
-	if _, err = out.Write(content[idx+len(target):]); err != nil {
-		return fmt.Errorf("failed to write to output: %w", err)
-	}
-
-	if err = os.WriteFile(filename, out.Bytes(), 0644); err != nil {
-		return fmt.Errorf("failed to write file %q: %w", filename, err)
-	}
-
-	return nil
 }
 
 const (
