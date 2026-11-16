@@ -1,5 +1,5 @@
-
-VERSION ?= $(shell git describe --tags --always --dirty)
+REV ?= $(shell git rev-parse HEAD)
+VERSION ?= "${REV}-amd64"
 
 # Image URL to use all building/pushing image targets
 IMG ?= "outscale/csi-snapshot-exporter:${VERSION}"
@@ -73,7 +73,7 @@ test: manifests fmt vet setup-envtest ## Run tests.
 # CertManager is installed by default; skip with:
 # - CERT_MANAGER_INSTALL_SKIP=true
 KIND_CLUSTER ?= csi-snapshot-exporter-test-e2e
-KIND_IMAGE ?= kindest/node:v1.32.8@sha256:abd489f042d2b644e2d033f5c2d900bc707798d075e8186cb65e3f1367a9d5a1
+KIND_IMAGE ?= kindest/node:v1.34.11@sha256:44e222ee2132dab25ff87301682f89eb82c7880ea3a1bf543bfe9708fd08d67d
 
 .PHONY: setup-test-e2e
 setup-test-e2e: ## Set up a Kind cluster for e2e tests if it does not exist
@@ -86,8 +86,8 @@ setup-test-e2e: ## Set up a Kind cluster for e2e tests if it does not exist
 EXPORT_BUCKET ?= csi-snapshot-exporter
 
 .PHONY: test-e2e
-test-e2e: setup-test-e2e manifests fmt vet ## Run the e2e tests. Expected an isolated environment using Kind.
-	EXPORT_BUCKET=$(EXPORT_BUCKET) KIND_CLUSTER=$(KIND_CLUSTER) go test ./test/e2e/ -v -ginkgo.v -test.timeout 180m -ginkgo.timeout 180m
+test-e2e: setup-test-e2e ## Run the e2e tests. Expected an isolated environment using Kind.
+	EXPORT_BUCKET=$(EXPORT_BUCKET) KIND_CLUSTER=$(KIND_CLUSTER) IMAGE=$(IMG) go test ./test/e2e/ -v -ginkgo.v -test.timeout 180m -ginkgo.timeout 180m
 	$(MAKE) cleanup-test-e2e
 
 .PHONY: cleanup-test-e2e
@@ -117,22 +117,7 @@ lint-config: golangci-lint ## Verify golangci-lint linter configuration
 
 .PHONY: build
 build: manifests fmt vet ## Build manager binary.
-	CGO_ENABLED=0 GOOS=$(TARGETOS) GOARCH=$(TARGETARCH) go build -ldflags $(LDFLAGS) -o manager cmd/main.go
-
-.PHONY: run
-run: manifests generate fmt vet ## Run a controller from your host.
-	go run ./cmd/main.go
-
-# If you wish to build the manager image targeting other platforms you can use the --platform flag.
-# (i.e. docker build --platform linux/arm64). However, you must enable docker buildKit for it.
-# More info: https://docs.docker.com/develop/develop-images/build_enhancements/
-.PHONY: docker-build
-docker-build: ## Build docker image with the manager.
-	$(CONTAINER_TOOL) build --build-arg VERSION=$(VERSION) -t ${IMG} .
-
-.PHONY: docker-push
-docker-push: ## Push docker image with the manager.
-	$(CONTAINER_TOOL) push ${IMG}
+	goreleaser release --clean --snapshot
 
 # PLATFORMS defines the target platforms for the manager image be built to provide support to multiple
 # architectures. (i.e. make docker-buildx IMG=myregistry/mypoperator:0.0.1). To use this option you need to:
