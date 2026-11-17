@@ -18,7 +18,7 @@ permissions:
 jobs:
   test-e2e:
     name: Run E2E test suite
-    runs-on: [self-hosted, linux, kube]
+    runs-on: [self-hosted, linux, local]
     steps:
       - name: ⬇️ Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -73,9 +73,12 @@ jobs:
           make test-e2e
         env:
           KIND_IMAGE: ${{ vars.KIND_IMAGE }}
+          KIND_CLUSTER: ${{ steps.secrets.outputs.osc_account }}
           IMAGE: "outscale/csi-snapshot-exporter:${{ github.sha }}-amd64"
       - name: 🧹 Destroy kind cluster
         if: ${{ always() }}
         timeout-minutes: 10
         run: |
           make cleanup-test-e2e
+        env:
+          KIND_CLUSTER: ${{ steps.secrets.outputs.osc_account }}
