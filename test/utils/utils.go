@@ -16,7 +16,6 @@ import (
 	snapshotv1 "github.com/kubernetes-csi/external-snapshotter/client/v8/apis/volumesnapshot/v1"
 	snapshotclient "github.com/kubernetes-csi/external-snapshotter/client/v8/clientset/versioned"
 	. "github.com/onsi/ginkgo/v2" //nolint:staticcheck
-	"github.com/outscale/goutils/sdk/ptr"
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -217,8 +216,8 @@ func CreateStorageClass(ctx context.Context, cs kubernetes.Interface) {
 				Name: storageClass,
 			},
 			Provisioner:       driverName,
-			ReclaimPolicy:     ptr.To(corev1.PersistentVolumeReclaimDelete),
-			VolumeBindingMode: ptr.To(storagev1.VolumeBindingImmediate),
+			ReclaimPolicy:     new(corev1.PersistentVolumeReclaimDelete),
+			VolumeBindingMode: new(storagev1.VolumeBindingImmediate),
 			Parameters:        map[string]string{},
 		}
 		_, err := cs.StorageV1().StorageClasses().Create(ctx, sc, metav1.CreateOptions{})
